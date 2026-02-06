@@ -22,7 +22,11 @@
 -- SOFTWARE.
 --
 
-local json = { _version = "0.1.2" }
+-- Modified for WoW 1.12 / Lua 5.0 compatibility:
+-- - Changed #table to table.getn() (line 78)
+-- - Changed select() to arg table (line 143-147)
+
+local json = { _version = "0.1.2-wow" }
 
 -------------------------------------------------------------------------------
 -- Encode
@@ -74,7 +78,8 @@ local function encode_table(val, stack)
       end
       n = n + 1
     end
-    if n ~= #val then
+    -- WoW 1.12 FIX: Use table.getn() instead of #
+    if n ~= table.getn(val) then
       error("invalid table: sparse array")
     end
     -- Encode
@@ -142,10 +147,11 @@ end
 
 local parse
 
+-- WoW 1.12 FIX: Use arg table instead of select()
 local function create_set(...)
   local res = {}
-  for i = 1, select("#", ...) do
-    res[ select(i, ...) ] = true
+  for i = 1, arg.n do
+    res[ arg[i] ] = true
   end
   return res
 end
